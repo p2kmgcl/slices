@@ -1,0 +1,99 @@
+$interface-width: 85vw
+$tweet-width: 33.25ch
+$top-spacing: 5vh
+$roundness: 2px
+
+body
+    font-family: 'Roboto'
+    text-align: center
+    font-weight: 300
+    font-size: 27.5px
+
+header
+    margin: $top-spacing auto
+    width: $interface-width
+    text-align: left
+    font-size: 1em
+
+    h1
+        font-family: 'Righteous'
+        font-weight: 400
+        margin-bottom: 0
+        font-size: 2em
+
+    p
+        margin-top: 0
+        margin-bottom: 0
+        font-size: 1em
+
+.topic,
+.lang
+    margin: 0 auto
+    font-size: 1.5em
+    border: none
+    box-sizing: border-box
+    outline: none
+    text-align: right
+    position: absolute
+    top: 0
+    right: (100vw - $interface-width) / 2
+    top: $top-spacing * 1.5
+    background-color: transparent
+    opacity: 0.25
+
+.lang
+    top: calc(#{$top-spacing} * 1.5 + 4em)
+    font-size: 0.5em
+
+.tweets
+    margin: 0 auto
+    width: 100vw
+    
+    @media (max-width: $tweet-width * 1.5)
+        width: $interface-width
+
+.tweetWrap
+    padding: 0.1em
+    transition: transform ease 0.3s
+    
+    @media (max-width: $tweet-width * 1.5)
+        padding: 0.5em 0
+
+.tweet
+    position: relative
+    width: $tweet-width
+    text-align: left
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24)
+    border-radius: $roundness
+    padding: $roundness * 10
+    box-sizing: border-box
+    background-color: #fefefe
+    
+    @media (max-width: $tweet-width * 1.5)
+        width: 100%
+
+    &::before
+        content: ''
+        background-color: fade-out(white, 0.25)
+        position: absolute
+        width: 100%
+        height: 100%
+        top: 0
+        left: 0
+        z-index: 1
+
+    .text
+        position: relative
+        z-index: 10
+        a
+            color: inherit
+            opacity: 0.5
+            text-decoration: none
+
+    img
+        position: relative
+        width: 100%
+        border-radius: $roundness
+        margin: 1em 0
+        z-index: 10
+        transition: opacity ease 0.3s

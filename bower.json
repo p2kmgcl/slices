@@ -1,0 +1,21 @@
+{
+  "name": "slices",
+  "version": "1.0.0",
+  "authors": [
+    "Pablo Molina <pablomolina.me>"
+  ],
+  "license": "Read README.md",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "minigrid": "~1.6.3",
+    "codebird": "~2.6.0",
+    "Autolinker.js": "~0.18.1",
+    "randomcolor": "~0.4.0"
+  }
+}

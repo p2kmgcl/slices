@@ -1,0 +1,20 @@
+doctype html
+html
+head
+    title Slices
+    link(href='https://fonts.googleapis.com/css?family=Roboto:400,300|Righteous', rel='stylesheet')
+    link(rel='stylesheet', href='main.css')
+
+body
+    header
+        h1 Slices
+        p A minimal twitter wall
+
+    main
+        select#lang.lang
+            option(selected, value='en') English
+            option(value='es') Español
+        input#topic.topic(type='text', value='#topic')
+        div#tweets.tweets
+
+    script(src='main.js')
