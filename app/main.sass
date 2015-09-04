@@ -8,6 +8,7 @@ body
     text-align: center
     font-weight: 300
     font-size: 27.5px
+    background-color: white
 
 header
     margin: $top-spacing auto
@@ -26,8 +27,7 @@ header
         margin-bottom: 0
         font-size: 1em
 
-.topic,
-.lang
+.topic
     margin: 0 auto
     font-size: 1.5em
     border: none
@@ -37,13 +37,9 @@ header
     position: absolute
     top: 0
     right: (100vw - $interface-width) / 2
-    top: $top-spacing * 1.5
+    top: $top-spacing * 1.25
     background-color: transparent
     opacity: 0.25
-
-.lang
-    top: calc(#{$top-spacing} * 1.5 + 4em)
-    font-size: 0.5em
 
 .tweets
     margin: 0 auto
@@ -97,3 +93,72 @@ header
         margin: 1em 0
         z-index: 10
         transition: opacity ease 0.3s
+
+.configShow
+    margin: 0 auto
+    font-size: 0.5em
+    border: none
+    box-sizing: border-box
+    outline: none
+    text-align: right
+    position: absolute
+    top: 0
+    right: (100vw - $interface-width) / 2
+    top: $top-spacing * 2.25
+    background-color: transparent
+    opacity: 0.25
+    cursor: pointer
+
+.config
+    font-size: 2em
+    display: none
+    position: absolute
+    top: $top-spacing * 4
+    font-size: 0.5em
+    width: $interface-width
+    padding: 0 (100vw - $interface-width) / 2
+    left: 0
+    background-color: inherit
+    text-align: left
+    border-top: dotted thin #aeaeae
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24)
+    padding-bottom: $top-spacing
+    z-index: 99999999
+    
+    h2
+        font-weight: 400
+        font-size: 2em
+        max-width: 55.75ch
+        margin: 1em auto
+    
+    label
+        font-size: 1.25em
+    
+    input,
+    select
+        font-size: 1.25em
+        display: block
+        width: 100%
+        margin-bottom: 1em
+        opacity: 0.5
+
+    fieldset
+        border: solid thin #aeaeae
+        padding: 1em 2em
+        max-width: 100ch
+        margin: 0 auto
+        margin-top: 3em
+    
+    legend
+        font-size: 1.5em
+
+    fieldset.close
+        border: none
+        padding: 0
+        
+        input
+            width: auto
+            padding: 0.5em
+            float: right
+            opacity: 1
+            cursor: pointer

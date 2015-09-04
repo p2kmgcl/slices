@@ -11,10 +11,42 @@ body
         p A minimal twitter wall
 
     main
-        select#lang.lang
-            option(selected, value='en') English
-            option(value='es') Español
-        input#topic.topic(type='text', value='#topic')
+        input#topic.topic(type='text', value='#twitter')
         div#tweets.tweets
+    
+    input#showConfig.configShow(type='button', value='Toggle configuration')
+    
+    form#config.config
+        h2 Configuration
+    
+        fieldset
+            legend API Keys
+            label(for='consumerKey') Consumer key
+            input#consumerKey
+            label(for='consumerSecret') Consumer secret
+            input#consumerSecret
+            label(for='token') Token
+            input#token
+            label(for='tokenSecret') Token secret
+            input#tokenSecret
+        
+        fieldset
+            legend Wall settings
+            label(for='lang') Tweets language
+            select#lang.lang
+                option(selected, value='') ---
+                option(value='en') English
+                option(value='es') Español
+            label(for='tweetInterval') Seconds between tweets
+            input#tweetInterval(type='range', min='0.5', max='9.5', step='0.5', value='5')
+            label(for='mediaPriority') Images preferred
+            input#mediaPriority(type='range', min='0', max='1000', step='10', value='100')
+            label(for='cleanInterval') Seconds until remove old tweets
+            input#cleanInterval(type='range', min='10', max='120', step='5', value='10')
+            label(for='maxTweets') Maximum tweets on screen
+            input#maxTweets(type='range', min='10', max='200', step='5', value='20')
+
+        fieldset.close
+            input#closeConfig(type='button', value='Close configuration')
 
     script(src='main.js')

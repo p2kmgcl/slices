@@ -7,7 +7,6 @@ Using this application is a simple ten steps process:
 
 1. Download
 2. Create a Twitter API client
-3. Set your API keys at app/main.coffee
 2. Install nodejs (0.10+) and Gulp
 3. Run npm install
 4. ...
