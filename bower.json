@@ -1,6 +1,6 @@
 {
   "name": "slices",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "authors": [
     "Pablo Molina <pablomolina.me>"
   ],
@@ -13,9 +13,8 @@
     "tests"
   ],
   "dependencies": {
-    "minigrid": "~1.6.3",
-    "codebird": "~2.6.0",
-    "Autolinker.js": "~0.18.1",
-    "randomcolor": "~0.4.0"
+    "polymer": "Polymer/polymer#~1.2.3",
+    "paper-card": "PolymerElements/paper-card#~1.0.8",
+    "bin-packing-grid": "~0.2.3"
   }
 }

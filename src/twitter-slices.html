@@ -1,0 +1,65 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="twitter-stream/twitter-stream.html">
+
+<dom-module id="twitter-slices">
+    <template>
+        <twitter-stream tweets="[[_tweets]]"></twitter-stream>
+    </template>
+
+    <script>
+        /*global Polymer*/
+    
+        Polymer({
+            is: 'twitter-slices',
+            
+            properties: {
+                consumerKey: {
+                    type: String,
+                    value: ''
+                },
+                consumerSecret: {
+                    type: String,
+                    value: ''
+                },
+                token: {
+                    type: String,
+                    value: ''
+                },
+                tokenSecret: {
+                    type: String,
+                    value: ''
+                },
+
+                query: {
+                    type: String,
+                    value: '#twitter'
+                },
+                languages: {
+                    type: Array,
+                    value: ['es', 'en']
+                },
+                preferImages: {
+                    type: Boolean,
+                    value: true
+                },
+                creationInterval: {
+                    type: Number,
+                    value: 5
+                },
+                cleaningInterval: {
+                    type: Number,
+                    value: 10
+                },
+                maximumLength: {
+                    type: Number,
+                    value: 100
+                },
+                
+                _tweets: {
+                    type: Array,
+                    value: []
+                }
+            }
+        });
+    </script>
+</dom-module>
