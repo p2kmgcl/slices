@@ -8,14 +8,14 @@ gulp.task('default', [
 ]);
 
 gulp.task('build', function () {
-    gulp.src('src/index.html')
+    gulp.src('src/demo.html')
     .pipe(vulcanize({
         inlineScripts: true,
         inlineCss: true
     }))
     .pipe(gulp.dest('.tmp'))
     .on('data', function () {
-        gulp.src(['.tmp/index.html'])
+        gulp.src(['.tmp/demo.html'])
         .pipe(browserSync.stream());
     });
 });
