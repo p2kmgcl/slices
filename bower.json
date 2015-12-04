@@ -15,6 +15,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#~1.2.3",
     "paper-card": "PolymerElements/paper-card#~1.0.8",
-    "bin-packing-grid": "~0.2.3"
+    "bin-packing-grid": "~0.2.3",
+    "oauth-js": "~0.4.8"
   }
 }

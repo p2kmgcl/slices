@@ -1,65 +1,139 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="twitter-stream/twitter-stream.html">
+<link rel="import" href="twitter-stream.html">
+<script src="../bower_components/oauth-js/dist/oauth.js"></script>
 
 <dom-module id="twitter-slices">
     <template>
         <twitter-stream tweets="[[_tweets]]"></twitter-stream>
     </template>
-
-    <script>
-        /*global Polymer*/
     
-        Polymer({
-            is: 'twitter-slices',
-            
-            properties: {
-                consumerKey: {
-                    type: String,
-                    value: ''
-                },
-                consumerSecret: {
-                    type: String,
-                    value: ''
-                },
-                token: {
-                    type: String,
-                    value: ''
-                },
-                tokenSecret: {
-                    type: String,
-                    value: ''
-                },
+    <script>
+    /*global Polymer, OAuth*/
 
-                query: {
-                    type: String,
-                    value: '#twitter'
-                },
-                languages: {
-                    type: Array,
-                    value: ['es', 'en']
-                },
-                preferImages: {
-                    type: Boolean,
-                    value: true
-                },
-                creationInterval: {
-                    type: Number,
-                    value: 5
-                },
-                cleaningInterval: {
-                    type: Number,
-                    value: 10
-                },
-                maximumLength: {
-                    type: Number,
-                    value: 100
-                },
-                
-                _tweets: {
-                    type: Array,
-                    value: []
-                }
+    Polymer({
+        is: 'twitter-slices',
+
+        properties: {
+            query: {
+                type: String,
+                value: '#twitter'
+            },
+            language: {
+                type: String,
+                value: ''
+            },
+            preferImages: {
+                type: Boolean,
+                value: true
+            },
+            fetchingInterval: {
+                type: Number,
+                value: 50000
+            },
+            cleaningInterval: {
+                type: Number,
+                value: 100000
+            },
+            maximumLength: {
+                type: Number,
+                value: 100
+            },
+            
+            _tweets: {
+                type: Array,
+                readOnly: true,
+                value: [],
             }
-        });
+        },
+
+        ready: function () {
+            this._fetchTweets = this._fetchTweets.bind(this);
+            this._selectTweets = this._selectTweets.bind(this);
+            this._cleanTweets = this._cleanTweets.bind(this);
+            this._cleanString = this._cleanString.bind(this);
+            this._getTweetScore = this._getTweetScore.bind(this);
+            this._compareTweets = this._compareTweets.bind(this);
+            this._findTweet = this._findTweet.bind(this);
+            
+            OAuth.initialize('S_qGDODdvXcjRgntfzvX9V_2jbg');
+            OAuth.popup('twitter')
+            .done((function (result) {
+                this._connection = result;
+                this._fetchTweets();
+                this._cleanTweets();
+            }).bind(this))
+            .fail(function (error) {
+                console.log('Authentication error');
+                console.log(error);
+            });
+        },
+
+        _fetchTweets: function () {
+            var url = [
+                '/1.1/search/tweets.json',
+                [
+                    ['q', encodeURIComponent(this.query)].join('='),
+                    ['lang', encodeURIComponent(this.language)].join('='),
+                    ['result_type', 'mixed'].join('='),
+                    ['count', 100].join('='),
+                    ['include_entities', true].join('='),
+                ].join('&')
+            ].join('?');
+            
+            this._connection.get(url)
+            .done((function (result) {
+                this._selectTweets(result.statuses);
+            }).bind(this))
+            .fail(function () {
+                console.log('Error fetching tweets');
+                console.log(arguments);
+            });
+        },
+
+        _cleanString: function (text) {
+           var element = document.createElement('div');
+           element.innerHTML = text.toLowerCase();
+           return element.textContent || element.innerText || '';
+        },
+        
+        _getTweetScore: function (tweet) {
+            var score = 0,
+                source = this._cleanString(tweet.source);
+            
+            if (source.indexOf('twitter ads') !== null) { score -= 100; }
+            if (source.indexOf('twittbot') !== null) { score -= 100; }
+            if (source.indexOf('buffer') !== null) { score -= 50; }
+            if (source.indexOf('ifttt') !== null) { score -= 50; }
+            
+            score += tweet.retweet_count;
+            score += tweet.favorite_count;
+            return score;
+            
+        },
+        
+        _compareTweets: function (tweet1, tweet2) {
+            return this._getTweetScore(tweet1) - this._getTweetScore(tweet2);
+        },
+        
+        _findTweet: function (tweet, index, tweets) {
+            return this._cleanString(tweet.text) ===
+                   this._cleanString(tweets[index].text);
+        },
+
+        _selectTweets: function (tweets) {
+            for (var tweet in tweets) {
+                if (tweets.some(this._findTweet)) {
+                    continue;
+                }
+                this._tweets.push(tweet);
+            }
+            this._tweets.sort(this._compareTweets);
+        },
+
+        _cleanTweets: function () {
+            console.log('cleaning tweets');
+            setTimeout(this._cleanTweets, this.cleaningInterval);
+        }
+    });
     </script>
 </dom-module>
