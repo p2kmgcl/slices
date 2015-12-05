@@ -6,8 +6,27 @@
         <style type="text/css">
             twitter-tweet {
                 float: left;
-                width: 30vw;
-                margin: 1vmin;
+                width: 98%;
+                margin: 1%;
+            }
+
+            @media (min-width:320px) {
+                twitter-tweet { width: 98%; }
+            }
+            @media (min-width:481px) {
+                twitter-tweet { width: 98%; }
+            }
+            @media (min-width:641px) {
+                twitter-tweet { width: 48%; }
+            }
+            @media (min-width:961px) {
+                twitter-tweet { width: 31.3334%; }
+            }
+            @media (min-width:1025px) {
+                twitter-tweet { width: 31.3334%; }
+            }
+            @media (min-width:1281px) {
+                twitter-tweet { width: 23%; }
             }
         </style>
         
@@ -34,6 +53,10 @@
         observers: [
             '_updateGrid(tweets.splices)'  
         ],
+
+        listeners: {
+            'tweet-render': '_updateGrid'
+        },
         
         ready: function () {
             this.masonry = new Masonry(this.$.stream, {
@@ -47,6 +70,10 @@
         
         _updateGrid: function (splicesInfo) {
             if (typeof splicesInfo !== 'object') {
+                return;
+
+            } else if (splicesInfo instanceof Event) {
+                this.masonry.layout();
                 return;
             }
             
@@ -62,13 +89,20 @@
 
                     $tweet.id = this._tweetId(tweet);
                     $tweet.setAttribute('text', tweet.text);
-                    $tweet.setAttribute('userName', tweet.user.screen_name);
-                    $tweet.setAttribute('userRealName', tweet.user.name);
-                    $tweet.setAttribute('userImage', tweet.user.profile_image_url);
+                    $tweet.setAttribute('user-name', tweet.user.screen_name);
+                    $tweet.setAttribute('user-real-name', tweet.user.name);
+                    $tweet.setAttribute('user-image', tweet.user.profile_image_url);
                     $tweet.setAttribute('entities', JSON.stringify(tweet.entities));
-                    
-                    Polymer.dom(this.$.stream).appendChild($tweet);
-                    this.masonry.appended($tweet);
+                    $tweet.setAttribute('retweet-count', tweet.retweet_count);
+                    $tweet.setAttribute('favorite-count', tweet.favorite_count);
+
+                    var previousTweet = Polymer.dom(this.$.stream).firstChild;
+                    if (previousTweet) {
+                        Polymer.dom(this.$.stream).insertBefore($tweet, previousTweet);
+                    } else {
+                        Polymer.dom(this.$.stream).appendChild($tweet);
+                    }
+                    this.masonry.prepended($tweet);
                     this.masonry.layout();
                 }
             }, this);

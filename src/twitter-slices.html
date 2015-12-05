@@ -28,21 +28,28 @@
             },
             fetchingInterval: {
                 type: Number,
-                value: 50000
+                value: 10000
             },
-            cleaningInterval: {
+            renderingInterval: {
                 type: Number,
-                value: 100000
+                value: 5000
             },
             maximumLength: {
                 type: Number,
                 value: 100
+            },
+
+            _tweetBuffer: {
+                type: Array,
+                value: function () {
+                    return [];
+                }
             }
         },
 
         ready: function () {
             this._fetchTweets = this._fetchTweets.bind(this);
-            this._selectTweets = this._selectTweets.bind(this);
+            this._renderTweets = this._renderTweets.bind(this);
             this._cleanTweets = this._cleanTweets.bind(this);
             this._cleanString = this._cleanString.bind(this);
             this._getTweetScore = this._getTweetScore.bind(this);
@@ -54,7 +61,7 @@
             .done((function (result) {
                 this._connection = result;
                 this._fetchTweets();
-                this._cleanTweets();
+                this._renderTweets();
             }).bind(this))
             .fail(function (error) {
                 console.log('Authentication error');
@@ -68,15 +75,16 @@
                 [
                     ['q', encodeURIComponent(this.query)].join('='),
                     ['lang', encodeURIComponent(this.language)].join('='),
-                    ['result_type', 'mixed'].join('='),
+                    ['result_type', 'recent'].join('='),
                     ['count', 100].join('='),
-                    ['include_entities', true].join('='),
+                    ['include_entities', true].join('=')
                 ].join('&')
             ].join('?');
             
             this._connection.get(url)
             .done((function (result) {
-                this._selectTweets(result.statuses);
+                this._cleanTweets(result.statuses);
+                setTimeout(this._fetchTweets, this.fetchingInterval);
             }).bind(this))
             .fail(function () {
                 console.log('Error fetching tweets');
@@ -103,11 +111,17 @@
             if (source.indexOf('twittbot') !== null) { score -= 100; }
             if (source.indexOf('buffer') !== null) { score -= 50; }
             if (source.indexOf('ifttt') !== null) { score -= 50; }
-            
+
+            if (this.preferImages) {
+                if (tweet.entities.media && tweet.entities.media.length > 0) {
+                    score += 100;
+                }
+            }
+
+            score -= parseInt((new Date() - new Date(tweet.created_at)) / 1000, 10);
             score += tweet.retweet_count;
             score += tweet.favorite_count;
             return score;
-            
         },
         
         _compareTweets: function (tweet1, tweet2) {
@@ -115,7 +129,16 @@
         },
         
         _hasTweet: function (tweet) {
-            for (var i = 0; i < this.$.stream.tweets.length; i++) {
+            var i;
+
+            for (i = 0; i < this._tweetBuffer.length; i++) {
+                if (this._cleanString(tweet.text) ===
+                    this._cleanString(this._tweetBuffer[i].text)) {
+                    return true;
+                }
+            }
+
+            for (i = 0; i < this.$.stream.tweets.length; i++) {
                 if (this._cleanString(tweet.text) ===
                     this._cleanString(this.$.stream.tweets[i].text)) {
                     return true;
@@ -124,19 +147,38 @@
             return false;
         },
 
-        _selectTweets: function (tweets) {
+        _cleanTweets: function (tweets) {
             for (var i = 0; i < tweets.length; i++) {
                 var tweet = tweets[i];
                 if (this._hasTweet(tweet)) {
                     continue;
                 }
-                this.$.stream.push('tweets', tweet);
+                this._tweetBuffer.push(tweet);
             }
-            this.$.stream.tweets.sort(this._compareTweets);
+
+            this._tweetBuffer.sort(this._compareTweets);
+            var bufferLimit = this.maximumLength,
+                bufferLength = this.maximumLength / 2,
+                streamLimit = this.maximumLength / 2,
+                streamLength = this.maximumLength / 4;
+
+            if (this._tweetBuffer.length > bufferLimit) {
+                while (this._tweetBuffer.length > bufferLength) {
+                    this._tweetBuffer.pop();
+                }
+            }
+            if (this.$.stream.tweets.length > streamLimit) {
+                while (this.$.stream.tweets.length > streamLength) {
+                    this.$.stream.pop('tweets');
+                }
+            }
         },
 
-        _cleanTweets: function () {
-            setTimeout(this._cleanTweets, this.cleaningInterval);
+        _renderTweets: function () {
+            if (this._tweetBuffer.length > 0) {
+                this.$.stream.unshift('tweets', this._tweetBuffer.shift());
+            }
+            setTimeout(this._renderTweets, this.renderingInterval);
         }
     });
     </script>

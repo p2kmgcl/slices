@@ -4,7 +4,7 @@
   "description": "",
   "author": "Pablo Molina <pablomolina.me>",
   "license": "Read README.md",
-  "repository": "https://github.com/p2kmgcl/slices"
+  "repository": "https://github.com/p2kmgcl/slices",
   "devDependencies": {
     "browser-sync": "^2.9.1",
     "gulp": "^3.9.0",
