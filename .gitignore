@@ -1,6 +1,5 @@
 node_modules
 bower_components
-src/demo.html
 .tmp
 .c9
 npm-debug.log
