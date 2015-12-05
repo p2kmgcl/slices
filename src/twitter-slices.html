@@ -4,7 +4,7 @@
 
 <dom-module id="twitter-slices">
     <template>
-        <twitter-stream tweets="[[_tweets]]"></twitter-stream>
+        <twitter-stream id="stream"></twitter-stream>
     </template>
     
     <script>
@@ -37,12 +37,6 @@
             maximumLength: {
                 type: Number,
                 value: 100
-            },
-            
-            _tweets: {
-                type: Array,
-                readOnly: true,
-                value: [],
             }
         },
 
@@ -53,7 +47,7 @@
             this._cleanString = this._cleanString.bind(this);
             this._getTweetScore = this._getTweetScore.bind(this);
             this._compareTweets = this._compareTweets.bind(this);
-            this._findTweet = this._findTweet.bind(this);
+            this._hasTweet = this._hasTweet.bind(this);
             
             OAuth.initialize('S_qGDODdvXcjRgntfzvX9V_2jbg');
             OAuth.popup('twitter')
@@ -91,9 +85,14 @@
         },
 
         _cleanString: function (text) {
-           var element = document.createElement('div');
-           element.innerHTML = text.toLowerCase();
-           return element.textContent || element.innerText || '';
+            if (typeof text !== 'string') {
+                text = '';   
+            }
+            text = text.toLowerCase();
+            text = text.replace(/https?:\/\/[^ ]+/g, '');
+            var element = document.createElement('div');
+            element.innerHTML = text;
+            return element.textContent || element.innerText || '';
         },
         
         _getTweetScore: function (tweet) {
@@ -112,26 +111,31 @@
         },
         
         _compareTweets: function (tweet1, tweet2) {
-            return this._getTweetScore(tweet1) - this._getTweetScore(tweet2);
+            return this._getTweetScore(tweet2) - this._getTweetScore(tweet1);
         },
         
-        _findTweet: function (tweet, index, tweets) {
-            return this._cleanString(tweet.text) ===
-                   this._cleanString(tweets[index].text);
+        _hasTweet: function (tweet) {
+            for (var i = 0; i < this.$.stream.tweets.length; i++) {
+                if (this._cleanString(tweet.text) ===
+                    this._cleanString(this.$.stream.tweets[i].text)) {
+                    return true;
+                }
+            }
+            return false;
         },
 
         _selectTweets: function (tweets) {
-            for (var tweet in tweets) {
-                if (tweets.some(this._findTweet)) {
+            for (var i = 0; i < tweets.length; i++) {
+                var tweet = tweets[i];
+                if (this._hasTweet(tweet)) {
                     continue;
                 }
-                this._tweets.push(tweet);
+                this.$.stream.push('tweets', tweet);
             }
-            this._tweets.sort(this._compareTweets);
+            this.$.stream.tweets.sort(this._compareTweets);
         },
 
         _cleanTweets: function () {
-            console.log('cleaning tweets');
             setTimeout(this._cleanTweets, this.cleaningInterval);
         }
     });

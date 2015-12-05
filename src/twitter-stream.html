@@ -1,0 +1,78 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="twitter-tweet.html">
+
+<dom-module id="twitter-stream">
+    <template>
+        <style type="text/css">
+            twitter-tweet {
+                float: left;
+                width: 30vw;
+                margin: 1vmin;
+            }
+        </style>
+        
+        <div id="stream"></div>
+    </template>
+    
+    <script src="../bower_components/masonry/dist/masonry.pkgd.js"></script>
+    <script>
+    /*global Polymer, Masonry, TwitterTweet*/
+
+    Polymer({
+        is: 'twitter-stream',
+
+        properties: {
+            tweets: {
+                type: Array,
+                reflectToAttribute: true,
+                value: function () {
+                    return [];
+                }
+            }
+        },
+        
+        observers: [
+            '_updateGrid(tweets.splices)'  
+        ],
+        
+        ready: function () {
+            this.masonry = new Masonry(this.$.stream, {
+                itemSelector: 'twitter-tweet'
+            });
+        },
+        
+        _tweetId: function (tweet) {
+            return "tweet-" + tweet.id;
+        },
+        
+        _updateGrid: function (splicesInfo) {
+            if (typeof splicesInfo !== 'object') {
+                return;
+            }
+            
+            splicesInfo.indexSplices.forEach(function (splice) {
+                splice.removed.forEach(function (tweet) {
+                    this.masonry.remove(this.$$(this._tweetId(tweet)));
+                    this.masonry.layout();
+                }, this);
+                
+                for (var i = 0; i < splice.addedCount; i++) {
+                    var tweet = splice.object[splice.index + i],
+                        $tweet = document.createElement('twitter-tweet');
+
+                    $tweet.id = this._tweetId(tweet);
+                    $tweet.setAttribute('text', tweet.text);
+                    $tweet.setAttribute('userName', tweet.user.screen_name);
+                    $tweet.setAttribute('userRealName', tweet.user.name);
+                    $tweet.setAttribute('userImage', tweet.user.profile_image_url);
+                    $tweet.setAttribute('entities', JSON.stringify(tweet.entities));
+                    
+                    Polymer.dom(this.$.stream).appendChild($tweet);
+                    this.masonry.appended($tweet);
+                    this.masonry.layout();
+                }
+            }, this);
+        }
+    });
+    </script>
+</dom-module>

@@ -1,0 +1,73 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<dom-module id="twitter-tweet">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+            
+            paper-card {
+                width: 100%;
+            }
+        </style>
+        
+        <paper-card
+            heading="{{userName}}"
+            image="{{_image}}"
+            preload-image="true"
+            fade-image="true">
+            <div class="card-content">{{text}}</div>
+        </paper-card>
+    </template>
+    
+    <script>
+    /*global Polymer*/
+
+    var TwitterTweet = Polymer({
+        is: 'twitter-tweet',
+
+        properties: {
+            text: {
+                type: String,
+                value: ''
+            },
+            userName: {
+                type: String,
+                value: ''
+            },
+            userRealName: {
+                type: String,
+                value: ''
+            },
+            userImage: {
+                type: String,
+                value: ''
+            },
+            entities: {
+                type: Object,
+                value: function () {
+                    return {};
+                },
+                observer: '_entityChange'
+            },
+            
+            _image: {
+                type: String,
+                value: '',
+                reflectToAttribute: true
+            }
+        },
+        
+        _entityChange: function () {
+            if (this.entities &&
+                this.entities.media &&
+                this.entities.media.length > 0) {
+                this._image = this.entities.media[0].media_url;
+                console.log(this._image);
+            }
+        }
+    });
+    </script>
+</dom-module>
