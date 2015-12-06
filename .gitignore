@@ -1,5 +1,2 @@
-node_modules
 bower_components
-.tmp
-.c9
-npm-debug.log
+.idea
