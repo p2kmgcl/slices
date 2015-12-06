@@ -1,21 +1,48 @@
 {
-  "name": "slices",
-  "version": "1.0.0",
-  "authors": [
-    "Pablo Molina <pablomolina.me>"
-  ],
-  "license": "Read README.md",
+  "name": "twitter-slices",
+  "description": "Twitter customized wall component",
+  "main": "src/twitter-slices.html",
+  "moduleType": "globals",
+  "license": "WTFPL",
   "ignore": [
-    "**/.*",
-    "node_modules",
+    ".git",
+    ".gitignore",
+    ".tmp",
     "bower_components",
-    "test",
-    "tests"
+    "gulpfile.js",
+    "node_modules",
+    "package.json",
+    "test"
   ],
+  "keywords": [
+    "twitter",
+    "wall",
+    "slices",
+    "component",
+    "polymer",
+    "social",
+    "stream"
+  ],
+  "authors": [
+    {
+      "name": "Pablo Molina",
+      "email": "contact@pablomolina.me",
+      "homepage": "http://www.pablomolina.me"
+    }
+  ],
+  "homepage": "http://www.pablomolina.me/slices",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:p2kmgcl/slices.git"
+  },
   "dependencies": {
-    "minigrid": "~1.6.3",
-    "codebird": "~2.6.0",
-    "Autolinker.js": "~0.18.1",
-    "randomcolor": "~0.4.0"
-  }
+    "polymer": "Polymer/polymer#~1.2.3",
+    "paper-card": "PolymerElements/paper-card#~1.0.8",
+    "oauth-js": "~0.4.8",
+    "masonry": "~3.3.2",
+    "iron-icon": "PolymerElements/iron-icon#~1.0.7",
+    "paper-button": "PolymerElements/paper-button#~1.0.10",
+    "iron-iconset-svg": "PolymerElements/iron-iconset-svg#~1.0.9"
+  },
+  "private": false
 }

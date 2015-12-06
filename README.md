@@ -1,30 +1,37 @@
-# Slices
-A minimal twitter wall
+# twitter-slices
 
-## Usage
+Twitter customized wall component
 
-Using this application is a simple ten steps process:
+## Examples
 
-1. Download
-2. Create a Twitter API client
-2. Install nodejs (0.10+) and Gulp
-3. Run npm install
-4. ...
-5. ...
-6. ...
-7. Wait...
-8. ...
-8. Just a little more...
-9. ...
-9. Now run `gulp`
-10. Done.
+```
+<twitter-slices
+    query="traffic ?"
+    ></twitter-slices>
+```
 
-## Author
+```
+<twitter-slices
+    query="ftw until:2015-07-19"
+    prefer-images
+    ></twitter-slices>
+```
 
-It's me! Pablo!
-[pablomolina.me](http://pablomolina.me)
+```
+<twitter-slices
+    query="to:techcrunch"
+    language="en"
+    
+    fetching-interval="10000"
+    rendering-interval="5000"
+    maximum-length="100"
+    ></twitter-slices>
+```
 
-## License
+## Install
 
-Do anything you want with this.
-If you are nice you may mention me :3
+Can be installed using bower or downloaded [as zip](https://github.com/p2kmgcl/slices/archive/master.zip):
+
+```
+bower install --save twitter-slices
+```

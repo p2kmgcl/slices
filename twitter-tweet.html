@@ -1,0 +1,104 @@
+<link rel="import" href="twitter-iconset.html">
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-card/paper-card.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="twitter-tweet">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            paper-card {
+                width: 100%;
+                --paper-card-header-text: {
+                    font-size: 1.25em;
+                    color: rgba(255, 255, 255, 0.75);
+                    text-shadow: 0 0 1em rgba(0, 0, 0, 1);
+                };
+            }
+        </style>
+        
+        <paper-card
+            heading="@{{userName}}"
+            image="{{_image}}">
+            <div class="card-content">{{text}}</div>
+            <div class="card-actions">
+                <paper-button>
+                    <iron-icon icon="twitter:retweet"></iron-icon>
+                    {{retweetCount}}
+                </paper-button>
+                <paper-button>
+                    <iron-icon icon="twitter:favorite"></iron-icon>
+                    {{favoriteCount}}
+                </paper-button>
+            </div>
+        </paper-card>
+    </template>
+    
+    <script>
+    /*global Polymer*/
+
+    var TwitterTweet = Polymer({
+        is: 'twitter-tweet',
+
+        properties: {
+            text: {
+                type: String,
+                value: ''
+            },
+            userName: {
+                type: String,
+                value: ''
+            },
+            userRealName: {
+                type: String,
+                value: ''
+            },
+            userImage: {
+                type: String,
+                value: ''
+            },
+            entities: {
+                type: Object,
+                value: function () {
+                    return {};
+                },
+                observer: '_entityChange'
+            },
+            retweetCount: {
+                type: Number,
+                value: 0,
+                reflectToAttribute: true
+            },
+            favoriteCount: {
+                type: Number,
+                value: 0,
+                reflectToAttribute: true
+            },
+            
+            _image: {
+                type: String,
+                value: '',
+                reflectToAttribute: true
+            }
+        },
+        
+        _entityChange: function () {
+            if (this.entities &&
+                this.entities.media &&
+                this.entities.media.length > 0) {
+                var img = document.createElement('img'),
+                    url = this.entities.media[0].media_url;
+                img.addEventListener('load', (function () {
+                    this._image = url;
+                    this.fire('tweet-render');
+                }).bind(this));
+                img.src = url;
+            }
+        }
+    });
+    </script>
+</dom-module>

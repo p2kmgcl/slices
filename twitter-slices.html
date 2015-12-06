@@ -1,0 +1,326 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<script src="bower_components/oauth-js/dist/oauth.js"></script>
+<link rel="import" href="twitter-stream.html">
+
+<dom-module id="twitter-slices">
+    <template>
+        <twitter-stream id="stream"></twitter-stream>
+    </template>
+    
+    <script>
+    /*global Polymer, OAuth*/
+
+    Polymer({
+        is: 'twitter-slices',
+
+        properties: {
+            /**
+             * Query for getting results from twitter. It can be anything
+             * accepted by the twitter search API. But be careful with too
+             * complex searches, as they will return an error.
+             *
+             * https://dev.twitter.com/rest/public/search
+             */
+            query: {
+                type: String,
+                value: '#twitter'
+            },
+
+            /**
+             * Tweets language, can be an empty string (any language) or a
+             * comma separated string with language codes.
+             */
+            language: {
+                type: String,
+                value: ''
+            },
+
+            /**
+             * If true, tweets with images will have preference when choosing
+             * which tweet must be shown. This __doesn't__ mean tweets without
+             * images won't be shown, just adds priority.
+             */
+            preferImages: {
+                type: Boolean,
+                value: true
+            },
+
+            /**
+             * How often new tweets will be fetched from the server. If you
+             * modify this value be careful with the twitter API rate limiting:
+             * https://dev.twitter.com/rest/public/rate-limiting
+             */
+            fetchingInterval: {
+                type: Number,
+                value: 10000
+            },
+
+            /**
+             * How often a new tweet is shown on the screen. Five seconds allow
+             * users to read tweets as they appear, but you may change it if
+             * you want.
+             *
+             * __Important__: this value doesn't affect at fetching, so you
+             * will always have the most relevant and recent tweets depending
+             * on the fetching interval.
+             */
+            renderingInterval: {
+                type: Number,
+                value: 5000
+            },
+
+            /**
+             * Size of the history saved while fetching tweets. Try to keep
+             * this value slightly small, so you can receive old tweets again if
+             * they are still relevant.
+             *
+             * This value __doesn't__ mean that 100 tweets are kept, they
+             * behaviour of the stream uses a buffer show it can be refreshed
+             * after some period.
+             */
+            maximumLength: {
+                type: Number,
+                value: 100
+            },
+
+            /**
+             * This private buffer is used for saving and ordering tweets until
+             * the rendering function is called.
+             *
+             * @private
+             */
+            _tweetBuffer: {
+                type: Array,
+                value: function () {
+                    return [];
+                }
+            }
+        },
+
+        /* *************************************************************** *
+         * * Main actions ************************************************ *
+         * *************************************************************** */
+
+        /**
+         * When the component is ready it tries to authenticate using the OAuth
+         * library, then it starts the fetching and rendering interval.
+         *
+         * These intervals use a setTimeout call for relaunching themselves,
+         * so if you change any of the interval parameters the behaviour will
+         * be updated on the next execution automatically.
+         *
+         * If there is an error authenticating, the message "Authentication error"
+         * and the object returned by OAuth will be logged on the console.
+         *
+         * @private
+         */
+        ready: function () {
+            this._fetchTweets = this._fetchTweets.bind(this);
+            this._renderTweets = this._renderTweets.bind(this);
+            this._cleanTweets = this._cleanTweets.bind(this);
+            this._cleanString = this._cleanString.bind(this);
+            this._getTweetScore = this._getTweetScore.bind(this);
+            this._compareTweets = this._compareTweets.bind(this);
+            this._hasTweet = this._hasTweet.bind(this);
+            
+            OAuth.initialize('S_qGDODdvXcjRgntfzvX9V_2jbg');
+            OAuth.popup('twitter', {
+                cache: true
+            })
+            .done((function (result) {
+                this._connection = result;
+                this._fetchTweets();
+                this._renderTweets();
+            }).bind(this))
+            .fail(function (error) {
+                console.log('Authentication error');
+                console.log(error);
+            });
+        },
+
+        /**
+         * Using the fetchingInterval, this function is executed each time
+         * new tweets needs to be downloaded from server. When the download
+         * is complete, it sends the result to _cleanTweets.
+         *
+         * If there is an error fetching tweets, the message "Error fetching
+         * tweets" and the arguments received will be logged on the console.
+         *
+         * The timeout for the next fetching will be set either if there is
+         * an error or not, so the component will not stop being executed.
+         *
+         * @private
+         */
+        _fetchTweets: function () {
+            var url = [
+                '/1.1/search/tweets.json',
+                [
+                    ['q', encodeURIComponent(this.query)].join('='),
+                    ['lang', encodeURIComponent(this.language)].join('='),
+                    ['result_type', 'recent'].join('='),
+                    ['count', 100].join('='),
+                    ['include_entities', true].join('=')
+                ].join('&')
+            ].join('?');
+            
+            this._connection.get(url)
+            .done((function (result) {
+                this._cleanTweets(result.statuses);
+                setTimeout(this._fetchTweets, this.fetchingInterval);
+            }).bind(this))
+            .fail(function () {
+                console.log('Error fetching tweets');
+                console.log(arguments);
+                setTimeout(this._fetchTweets, this.fetchingInterval);
+            });
+        },
+
+        /**
+         * This function receives an array of tweets from twitter API, then
+         * orders them and remove any if necessary. The buffer is always sorted
+         * and clean so the tweets on the beginning are the most important.
+         *
+         * @param tweets Array of tweets (objects from twitter API).
+         * @private
+         */
+        _cleanTweets: function (tweets) {
+            for (var i = 0; i < tweets.length; i++) {
+                var tweet = tweets[i];
+                if (this._hasTweet(tweet)) {
+                    continue;
+                }
+                this._tweetBuffer.push(tweet);
+            }
+
+            this._tweetBuffer.sort(this._compareTweets);
+            var bufferLimit = this.maximumLength,
+                    bufferLength = this.maximumLength / 2,
+                    streamLimit = this.maximumLength / 2,
+                    streamLength = this.maximumLength / 4;
+
+            if (this._tweetBuffer.length > bufferLimit) {
+                while (this._tweetBuffer.length > bufferLength) {
+                    this._tweetBuffer.pop();
+                }
+            }
+            if (this.$.stream.tweets.length > streamLimit) {
+                while (this.$.stream.tweets.length > streamLength) {
+                    this.$.stream.pop('tweets');
+                }
+            }
+        },
+
+        /**
+         * Each time this function is executed if removes the most important
+         * tweet on the buffer and puts it into the stream. If there are no
+         * tweets on the buffer the timeout for the reexecution is reduced until
+         * it finds some tweets to show.
+         *
+         * @private
+         */
+        _renderTweets: function () {
+            if (this._tweetBuffer.length > 0) {
+                this.$.stream.unshift('tweets', this._tweetBuffer.shift());
+                setTimeout(this._renderTweets, this.renderingInterval);
+            } else {
+                setTimeout(this._renderTweets, this.renderingInterval / 10);
+            }
+        },
+
+        /* *************************************************************** *
+         * * Utility elements ******************************************** *
+         * *************************************************************** */
+
+        /**
+         * Because of retweets, shorten urls and other twitter facts comparing
+         * two tweets can't be just an ID comparison. We lowercase the text,
+         * remove urls and keep just plain text for saying if two tweets are
+         * equal or not.
+         *
+         * @param text Text of a tweet.
+         * @returns {*|string|string}
+         * @private
+         */
+        _cleanString: function (text) {
+            if (typeof text !== 'string') {
+                text = '';   
+            }
+            text = text.toLowerCase();
+            text = text.replace(/https?:\/\/[^ ]+/g, '');
+            var element = document.createElement('div');
+            element.innerHTML = text;
+            return element.textContent || element.innerText || '';
+        },
+
+        /**
+         * This function analyses all tweet information and assigns a score
+         * using it's source, data, images, retweets...
+         *
+         * The bigger score, the better tweet.
+         *
+         * @param tweet Tweet to be analysed.
+         * @returns {number} Score of the tweet (integer).
+         * @private
+         */
+        _getTweetScore: function (tweet) {
+            var score = 0,
+                source = this._cleanString(tweet.source);
+            
+            if (source.indexOf('twitter ads') !== null) { score -= 100; }
+            if (source.indexOf('twittbot') !== null) { score -= 100; }
+            if (source.indexOf('buffer') !== null) { score -= 50; }
+            if (source.indexOf('ifttt') !== null) { score -= 50; }
+
+            if (this.preferImages) {
+                if (tweet.entities.media && tweet.entities.media.length > 0) {
+                    score += 100;
+                }
+            }
+
+            score -= parseInt((new Date() - new Date(tweet.created_at)) / 1000, 10);
+            score += tweet.retweet_count;
+            score += tweet.favorite_count;
+            return score;
+        },
+
+        /**
+         * For two given tweets it uses _getTweetScore for comparing them.
+         *
+         * @param tweet1 First tweet.
+         * @param tweet2 Second tweet.
+         * @returns {number} The result of the comparison (integer).
+         * @private
+         */
+        _compareTweets: function (tweet1, tweet2) {
+            return this._getTweetScore(tweet2) - this._getTweetScore(tweet1);
+        },
+
+        /**
+         * For a given tweet checks if it's inside either the tweet buffer
+         * or the render stream using cleanString.
+         *
+         * @param tweet Tweet to be found.
+         * @returns {boolean} True if the tweet if found, false otherwise.
+         * @private
+         */
+        _hasTweet: function (tweet) {
+            var i;
+
+            for (i = 0; i < this._tweetBuffer.length; i++) {
+                if (this._cleanString(tweet.text) ===
+                    this._cleanString(this._tweetBuffer[i].text)) {
+                    return true;
+                }
+            }
+
+            for (i = 0; i < this.$.stream.tweets.length; i++) {
+                if (this._cleanString(tweet.text) ===
+                    this._cleanString(this.$.stream.tweets[i].text)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    });
+    </script>
+</dom-module>
