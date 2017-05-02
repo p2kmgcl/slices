@@ -1,7 +1,7 @@
 {
   "name": "slices",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "Nice twitter wall app",
   "main": "core/main.js",
   "scripts": {
     "start": "electron .",
