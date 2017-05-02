@@ -1,22 +1,56 @@
 {
-  "name": "electron-quick-start",
+  "name": "slices",
   "version": "1.0.0",
   "description": "A minimal Electron application",
-  "main": "main.js",
+  "main": "core/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "rm -r ./dist && electron-packager --all --asar --out dist/ .",
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:js": "standard **/*.js",
+    "lint:css": "stylelint **/*.css"
   },
-  "repository": "https://github.com/electron/electron-quick-start",
-  "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
-  ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "build": {
+    "appId": "slices.pablomolina.me",
+    "mac": {
+      "category": "social.internet"
+    }
+  },
+  "stylelint": {
+    "extends": [
+      "stylelint-config-standard"
+    ],
+    "rules": {
+      "selector-type-no-unknown": [
+        true,
+        {
+          "ignoreTypes": [
+            "the-wall",
+            "tweet-content",
+            "tweet-image",
+            "tweet-video",
+            "tweet-wrapper",
+            "config-page"
+          ]
+        }
+      ]
+    }
+  },
+  "repository": "https://github.com/p2kmgcl/slices",
+  "keywords": [],
+  "author": "Pablo Molina <contact@pablomolina.me>",
+  "license": "MIT",
   "devDependencies": {
-    "electron": "~1.6.2"
+    "electron": "~1.6.2",
+    "electron-packager": "^8.7.0",
+    "standard": "^10.0.2",
+    "stylelint": "^7.10.1",
+    "stylelint-config-standard": "^16.0.0"
+  },
+  "dependencies": {
+    "linkifyjs": "^2.1.4",
+    "minigrid": "^3.1.1",
+    "node-tweet-stream": "^2.0.1",
+    "string_score": "^0.1.22"
   }
 }

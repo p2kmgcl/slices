@@ -1,0 +1,120 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #fff;
+  color: #444;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Ubuntu, Helvetica Neue, sans-serif;
+  font-size: 16px;
+}
+
+the-wall {
+  display: block;
+  margin: 0 auto;
+}
+
+the-wall.paused::before {
+  content: 'Paused';
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  height: 2em;
+  padding: 0 0.5em;
+  line-height: 2em;
+  background-color: #888;
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  z-index: 100;
+}
+
+tweet-wrapper {
+  vertical-align: top;
+  display: inline-block;
+  padding: 10px;
+  width: 400px;
+  max-width: 100%;
+  box-sizing: border-box;
+  transition: all ease 0.3s;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+tweet-content {
+  display: block;
+  margin-bottom: 5px;
+}
+
+tweet-content a,
+tweet-content a:active,
+tweet-content a:hover,
+tweet-content a:visited {
+  color: CornflowerBlue;
+}
+
+tweet-image,
+tweet-image > a,
+tweet-image > a > img,
+tweet-video,
+tweet-video > video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+config-page .toggle-button {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  border: none;
+  height: 2em;
+  line-height: 2em;
+  background-color: #444;
+  color: #fff;
+  text-align: center;
+  font-size: 1em;
+  font-family: inherit;
+  border-radius: 4px;
+  z-index: 110;
+  outline: none;
+  cursor: pointer;
+}
+
+config-page .topic-list {
+  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 2em;
+  padding: 1em;
+  outline: none;
+  border: none;
+}
+
+config-page .speed-range {
+  z-index: 110;
+  position: fixed;
+  top: calc(2em + 16px);
+  right: 8px;
+  font-size: 1em;
+  outline: none;
+  border: none;
+  transform-origin: 0 0;
+  background-color: #eee;
+  padding: 0.5em;
+  border-radius: 4px;
+}
+
+config-page.hidden .speed-range,
+config-page.hidden .topic-list {
+  display: none;
+}
