@@ -24,13 +24,13 @@
       }
     }
 
-    static handleTextAreaKeyUp (event) {
+    handleTextAreaKeyUp (event) {
       event.stopPropagation()
       event.preventDefault()
       return false
     }
 
-    static handleSpeedChange (event) {
+    handleSpeedChange (event) {
       window.SLICES_LOOP_TIMEOUT = event.target.value * 1000
     }
 
@@ -44,7 +44,8 @@
       this._speedRange = document.createElement('input')
       this._speedRange.classList.add('speed-range')
       this._speedRange.type = 'number'
-      this._speedRange.min = 1
+      this._speedRange.min = 0.1
+      this._speedRange.step = 0.1
       this._speedRange.max = 20
       this._speedRange.value = 2
       this._speedRange.addEventListener('change', this.handleSpeedChange)

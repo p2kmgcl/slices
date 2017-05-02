@@ -40,6 +40,10 @@
     }
 
     requestTweets () {
+      if (this._loopIntervalId !== -1) {
+        clearTimeout(this._loopIntervalId)
+        this._loopIntervalId = -1
+      }
       ipcRenderer.send('get-tweet')
       if (this._onLoop) {
         this._loopIntervalId = setTimeout(this.requestTweets, window.SLICES_LOOP_TIMEOUT)

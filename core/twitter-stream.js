@@ -55,10 +55,8 @@ module.exports = (mainWindow) => {
     .replace(/\W+/gi, '')
 
   function hasTweetHash (hash) {
-    if (tweetHashes.indexOf(hash) === -1) {
-      return false
-    }
-    return tweetHashes.find((hashCandidate) => hash.score(hashCandidate, 1) > 0.5)
+    if (tweetHashes.indexOf(hash) === -1) return false
+    return !!tweetHashes.find((hashCandidate) => hash.score(hashCandidate, 1) > 0.5)
   }
 
   function addTweetHash (hash) {
@@ -150,7 +148,6 @@ module.exports = (mainWindow) => {
   })
 
   ipcMain.on('update-topics', (event, topics) => {
-    tweetHashes.length = 0
     nextTweetUsed = true
     nextTweet = null
     console.log('New topics:', topics.join(', '))
